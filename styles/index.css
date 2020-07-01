@@ -70,6 +70,7 @@ body {
 .todoapp h1 {
 	position: absolute;
 	top: -155px;
+  margin-top:83px;
 	width: 100%;
 	font-size: 100px;
 	font-weight: 100;
@@ -349,6 +350,12 @@ html .clear-completed:active {
 .info a:hover {
 	text-decoration: underline;
 }
+
+
+#__next-prerender-indicator{
+  display:none;
+}
+
 
 /*
 	Hack to remove background from Mobile Safari.

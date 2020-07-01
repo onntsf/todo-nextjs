@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start"
   },
-  "author": "Remy Sharp <remy@leftlogic.com>",
+  "author": "",
   "dependencies": {
     "next": "latest",
     "react": "^16.7.0",

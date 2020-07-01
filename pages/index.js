@@ -7,7 +7,7 @@ const IndexPage = () => (
     <title>Next.js • TodoMVC</title>
   </Head>
   <Todoapp />
-  <footer class="info">
+  <footer className="info">
   	<p>Double-click to edit a todo</p>
   	<p>Created by Misako Seki</p>
   </footer>
