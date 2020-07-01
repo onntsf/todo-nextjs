@@ -1,0 +1,207 @@
+import Main from './Main'
+import Footer from './Footer'
+
+const ENTER_KEY = 13;
+const ESCAPE_KEY = 27;
+const TODOFILTER = {
+  all: 'all',
+  active: 'active',
+  completed: 'completed',
+};
+
+
+class Todoapp extends React.Component {
+  constructor(props) {
+    super(props);
+    const util = new Util();
+    this.state = {
+      todos: [],
+      todofilter: 'all',
+      util: util,
+    };
+  }
+  componentDidMount() {
+    this.setState({
+      todos: this.state.util.store('todos-jquery'),
+    });
+  }
+
+  create(e){
+    e.preventDefault();    
+    const input = e.target;
+    const val = input.value.trim();
+  
+    if (e.which !== ENTER_KEY || !val) {
+      return;
+    }
+  
+    this.setState({
+      todos:  
+        this.state.todos.concat([{
+          id: this.state.util.uuid(),
+          title: val,
+          completed: false
+      }])
+    });
+
+    input.value = '';
+  }
+
+  toggleAll(e) {
+			//var isChecked = $(e.target).prop('checked');
+
+			//this.todos.forEach(function (todo) {
+			//	todo.completed = isChecked;
+			//});
+    const todos = this.state.todos;
+    let hoge = todos.filter(todo => !todo.completed); 
+    const completed = todos.filter(todo => !todo.completed).length > 0
+      ? true : false;
+    this.setState({
+      todos: todos.map(todo => {
+        todo.completed = completed;
+        return todo;
+      })
+    });
+  }
+
+  toggle(e) {
+    const id = e.target.getAttribute('data-id');  
+    this.setState({
+      todos: this.state.todos.map(todo => {
+        if(todo.id===id){
+          todo.completed = !todo.completed;
+        }
+        return todo;
+      })
+    });
+  }
+
+  getFilteredTodos() {
+    if (this.filter === 'active') {
+    	return this.getActiveTodos();
+    }
+    
+    if (this.filter === 'completed') {
+    	return this.getCompletedTodos();
+    }
+    
+    return this.todos;
+  }
+
+  todoCount() {
+    return this.state.todos.filter(todo => !todo.completed).length;
+  }
+
+  todolist() {
+    let todos = this.state.todos;
+    const selectedFilter = this.state.todofilter;
+    if(selectedFilter = )
+    return    todos.map(todo => (
+          <li data-id={todo.id}>
+            <div className="view">
+              <input 
+                data-id={todo.id} 
+                className="toggle" 
+                type="checkbox" 
+                checked={todo.completed} 
+                onChange={(e) => this.toggle(e)}
+              />
+              <label>{todo.title}</label>
+            </div>
+          </li>
+    )
+    );
+  }
+
+  getSelectedFilter(name) {
+    return name  === this.state.todofilter
+      ? 'selected' : '';
+  }
+
+  render() {
+//    const todolist = 
+//      this.state.todos.map(todo => (
+//        <li data-id={todo.id}>
+//          <div className="view">
+//            <input 
+//              data-id={todo.id} 
+//              className="toggle" 
+//              type="checkbox" 
+//              checked={todo.completed} 
+//              onChange={(e) => this.toggle(e)}
+//            />
+//            <label>{todo.title}</label>
+//          </div>
+//        </li>
+//      ));
+
+    return(
+      <>
+        <section className="todo-header">
+          <h1>todos</h1>
+          <input 
+            className="new-todo" 
+            placeholder="What needs to be done?" 
+            autoFocus 
+            onKeyUp={(e) => this.create(e)}
+          />
+        </section>
+        <section className="todo-main">
+          <input 
+            id="toggle-all" 
+            className="toggle-all" 
+            type="checkbox" 
+            onChange={(e) => this.toggleAll(e)}
+          />
+          <ul className="todo-list">{this.todolist()}</ul>
+        </section>
+        <section className="todo-footer">
+          <span className="todo-count">
+            <strong>{this.todoCount()}</strong>
+            items left
+          </span>
+          <ul className="todofilters">
+            <li><label className={this.getSelectedFilter('all')}>All</label></li>
+            <li><label className={this.getSelectedFilter('active')}>Active</label></li>
+            <li><label className={this.getSelectedFilter('completed')}>Completed</label></li>
+          </ul>
+          <button className="clear-completed">Clear completed</button>
+        </section>
+      </>
+    )
+  }
+}
+
+class Util extends React.Component {
+  uuid () {
+    /*jshint bitwise:false */
+    var i, random;
+    var uuid = '';
+
+    for (i = 0; i < 32; i++) {
+      random = Math.random() * 16 | 0;
+      if (i === 8 || i === 12 || i === 16 || i === 20) {
+        uuid += '-';
+      }
+      uuid += (i === 12 ? 4 : (i === 16 ? (random & 3 | 8) : random)).toString(16);
+    }
+
+    return uuid;
+  }
+
+  pluralize(count, word) {
+    return count === 1 ? word : word + 's';
+  }
+
+  store(namespace, data) {
+    if (arguments.length > 1) {
+      return localStorage.setItem(namespace, JSON.stringify(data));
+    } else {
+      let store = localStorage.getItem(namespace);
+      return (store && JSON.parse(store)) || [];
+    }
+  }
+}
+
+export default Todoapp
