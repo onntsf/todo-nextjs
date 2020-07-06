@@ -9,11 +9,10 @@ const TODOFILTER = {
 class Todoapp extends React.Component {
   constructor(props) {
     super(props);
-    const util = new Util();
+    this.util = new Util();
     this.state = {
       todos: [],
       todofilter: TODOFILTER.all,
-      util: util,
       // todo内容編集時の編集前の状態保存
       tmpVal: '',
     };
@@ -21,13 +20,13 @@ class Todoapp extends React.Component {
 
   componentDidMount() {
     this.setState({
-      todos: this.state.util.store('todos-jquery'),
+      todos: this.util.store('todos-jquery'),
     });
   }
 
   // 新しいtodo作成
-  create(e){
-    e.preventDefault();    
+  create(e) {
+    e.preventDefault();
     const input = e.target;
     const val = input.value.trim();
 
@@ -36,12 +35,12 @@ class Todoapp extends React.Component {
     }
 
     this.setState({
-      todos:  
+      todos:
       this.state.todos.concat([{
-        id: this.state.util.uuid(),
+        id: this.util.uuid(),
         title: val,
-        completed: false
-      }])
+        completed: false,
+      }]),
     });
 
     input.value = '';
@@ -49,14 +48,14 @@ class Todoapp extends React.Component {
 
   // todoの完了/未完了切り替え
   toggle(e) {
-    const id = e.target.getAttribute('data-id');  
+    const id = e.target.getAttribute('data-id');
     this.setState({
-      todos: this.state.todos.map(todo => {
-        if(todo.id===id){
+      todos: this.state.todos.map((todo) => {
+        if (todo.id === id) {
           todo.completed = !todo.completed;
         }
         return todo;
-      })
+      }),
     });
   }
 
@@ -67,42 +66,39 @@ class Todoapp extends React.Component {
     const completed = this.haveActive();
 
     this.setState({
-      todos: this.state.todos.map(todo => {
+      todos: this.state.todos.map((todo) => {
         todo.completed = completed;
         return todo;
-      })
+      }),
     });
   }
 
   // 完了したtodoがあるか検索
   haveCompleted() {
-    return this.state.todos.find(todo => todo.completed)
-      ?  true : false;
+    return !!this.state.todos.find((todo) => todo.completed);
   }
 
   // 完了していないtodoがあるか検索
   haveActive() {
-    return this.state.todos.find(todo => !todo.completed) 
-      ?  true : false;
+    return !!this.state.todos.find((todo) => !todo.completed);
   }
-
 
   // todoが完了していればcompletedを返す
   getLiClass(id) {
-    return this.state.todos.find(todo => (todo.id === id && todo.completed)) 
-      ? 'completed' : null; 
+    return this.state.todos.find((todo) => (todo.id === id && todo.completed))
+      ? 'completed' : null;
   }
 
   // 未完了todoをカウント
   todoCount() {
-    return this.state.todos.filter(todo => !todo.completed).length;
+    return this.state.todos.filter((todo) => !todo.completed).length;
   }
 
   // todoを編集可状態に変更
-  editingMode (e) {
+  editingMode(e) {
     const li = e.target.parentNode.parentNode;
     const input = Array.from(li.childNodes)
-      .find(element => element.className === 'edit');
+      .find((element) => element.className === 'edit');
 
     li.classList.add('editing');
     input.focus();
@@ -110,7 +106,7 @@ class Todoapp extends React.Component {
 
   // 編集前のtodo名を記憶
   keepVal(e) {
-    if(this.state.tmpVal === '') {
+    if (this.state.tmpVal === '') {
       this.state.tmpVal = e.target.value;
     }
   }
@@ -120,12 +116,12 @@ class Todoapp extends React.Component {
     const id = e.target.getAttribute('data-id');
 
     this.setState({
-      todos: this.state.todos.map(todo => {
-        if(todo.id === id) {
+      todos: this.state.todos.map((todo) => {
+        if (todo.id === id) {
           todo.title = e.target.value.trim();
         }
         return todo;
-      })
+      }),
     });
   }
 
@@ -134,17 +130,17 @@ class Todoapp extends React.Component {
     if (e.which === ENTER_KEY || e.which === ESCAPE_KEY) {
       const id = e.target.getAttribute('data-id');
 
-      if(e.which === ENTER_KEY && !e.target.value) {
+      if (e.which === ENTER_KEY && !e.target.value) {
         this.destroy(id);
       }
       if (e.which === ESCAPE_KEY && this.state.tmpVal !== '') {
         this.setState({
-          todos: this.state.todos.map(todo => {
-            if(todo.id == id) {
+          todos: this.state.todos.map((todo) => {
+            if (todo.id == id) {
               todo.title = this.state.tmpVal;
             }
             return todo;
-          })
+          }),
         });
       }
       e.target.blur();
@@ -154,9 +150,7 @@ class Todoapp extends React.Component {
   // todoの削除
   destroy(id) {
     this.setState({
-      todos: this.state.todos.filter(todo => 
-        todo.id !== id 
-      )
+      todos: this.state.todos.filter((todo) => todo.id !== id),
     });
   }
 
@@ -169,47 +163,45 @@ class Todoapp extends React.Component {
 
   // todo表示フィルタを設定
   getSelectedFilter(name) {
-    return name  === this.state.todofilter
+    return name === this.state.todofilter
       ? 'selected' : '';
   }
 
   // 完了したtodoを削除
   clearCompleted() {
     this.setState({
-      todos: this.state.todos.filter(todo => !todo.completed)
+      todos: this.state.todos.filter((todo) => !todo.completed),
     });
   }
 
-
   // todoリストの表示
   todolist() {
-    let todos = this.state.todos;
+    let { todos } = this.state;
     const selectedFilter = this.state.todofilter;
 
-    if(selectedFilter === TODOFILTER.completed) {
-      todos = todos.filter(todo => todo.completed);
-    }
-    else if(selectedFilter === TODOFILTER.active) {
-      todos = todos.filter(todo => !todo.completed);
+    if (selectedFilter === TODOFILTER.completed) {
+      todos = todos.filter((todo) => todo.completed);
+    } else if (selectedFilter === TODOFILTER.active) {
+      todos = todos.filter((todo) => !todo.completed);
     }
 
-    return todos.map(todo => (
+    return todos.map((todo) => (
       <li className={this.getLiClass(todo.id)} data-id={todo.id}>
         <div className="view">
-          <input 
-            data-id={todo.id} 
-            className="toggle" 
-            type="checkbox" 
-            checked={todo.completed} 
+          <input
+            data-id={todo.id}
+            className="toggle"
+            type="checkbox"
+            checked={todo.completed}
             onChange={(e) => this.toggle(e)}
           />
           <label onDoubleClick={(e) => this.editingMode(e)}>{todo.title}</label>
-          <button className="destroy" onClick={() => this.destroy(todo.id)}></button>
+          <button className="destroy" onClick={() => this.destroy(todo.id)} />
         </div>
-        <input 
-          className="edit" 
+        <input
+          className="edit"
           data-id={todo.id}
-          value={todo.title} 
+          value={todo.title}
           onKeyDown={(e) => this.keepVal(e)}
           onKeyUp={(e) => this.editKeyup(e)}
           onChange={(e) => this.editChange(e)}
@@ -221,78 +213,85 @@ class Todoapp extends React.Component {
 
   // 完了todo削除ボタンの表示切り替え
   dispClearCompleted() {
-    if(this.haveCompleted()){
+    if (this.haveCompleted()) {
       return (
-        <button 
-          className="clear-completed" 
+        <button
+          className="clear-completed"
           onClick={() => this.clearCompleted()}
-        >Clear completed</button>
+        >
+          Clear completed
+        </button>
       );
     }
-    else{
-      return null;
-    }
+
+    return null;
   }
 
   // フッタの表示切り替え
   dispFooter() {
-    return this.state.todos.length == 0 
+    return this.state.todos.length == 0
       ? null : (
         <section className="todo-footer">
           <span className="todo-count">
             <strong>{this.todoCount()}</strong>
-              items left
-            </span>
-            <ul className="todo-filters">
-              <li>
-                <label 
-                  className={this.getSelectedFilter(TODOFILTER.all)}
-                  onClick={() => this.setState({todofilter: TODOFILTER.all})}
-                >All</label>
-              </li>
-              <li>
-                <label 
-                  className={this.getSelectedFilter(TODOFILTER.active)}
-                  onClick={() => this.setState({todofilter: TODOFILTER.active})}
-                >Active</label>
-                </li>
-              <li>
-                <label 
-                  className={this.getSelectedFilter(TODOFILTER.completed)}
-                  onClick={() => this.setState({todofilter: TODOFILTER.completed})}
-                >Completed</label>
-              </li>
-            </ul>
-            {this.dispClearCompleted()}
+            items left
+          </span>
+          <ul className="todo-filters">
+            <li>
+              <label
+                className={this.getSelectedFilter(TODOFILTER.all)}
+                onClick={() => this.setState({ todofilter: TODOFILTER.all })}
+              >
+                All
+              </label>
+            </li>
+            <li>
+              <label
+                className={this.getSelectedFilter(TODOFILTER.active)}
+                onClick={() => this.setState({ todofilter: TODOFILTER.active })}
+              >
+                Active
+              </label>
+            </li>
+            <li>
+              <label
+                className={this.getSelectedFilter(TODOFILTER.completed)}
+                onClick={() => this.setState({ todofilter: TODOFILTER.completed })}
+              >
+                Completed
+              </label>
+            </li>
+          </ul>
+          {this.dispClearCompleted()}
         </section>
       );
   }
 
   // 全て選択ボタンの表示切り替え
   dispToggleAll() {
-    return this.state.todos.length == 0 
+    return this.state.todos.length == 0
       ? null : (
         <>
-          <input 
-            id="toggle-all" 
-            className="toggle-all" 
-            type="checkbox" 
+          <input
+            id="toggle-all"
+            className="toggle-all"
+            type="checkbox"
             onChange={(e) => this.toggleAll(e)}
           />
-          <label for="toggle-all">Mark all as complete</label>
+          <label htmlFor="toggle-all">Mark all as complete</label>
         </>
       );
   }
 
   render() {
-    return(
+    return (
       <section className="todoapp">
         <section className="todo-header">
           <h1>todos</h1>
-          <input 
-            className="new-todo" 
-            placeholder="What needs to be done?" 
-            autoFocus 
+          <input
+            className="new-todo"
+            placeholder="What needs to be done?"
+            autoFocus
             onKeyUp={(e) => this.create(e)}
           />
         </section>
@@ -302,13 +301,14 @@ class Todoapp extends React.Component {
         </section>
         {this.dispFooter()}
       </section>
-    )
+    );
   }
 }
 
-class Util extends React.Component {
-  uuid () {
-    let i, random;
+class Util {
+  uuid() {
+    let i; let
+      random;
     let uuid = '';
 
     for (i = 0; i < 32; i++) {
@@ -325,11 +325,10 @@ class Util extends React.Component {
   store(namespace, data) {
     if (arguments.length > 1) {
       return localStorage.setItem(namespace, JSON.stringify(data));
-    } else {
-      let store = localStorage.getItem(namespace);
-      return (store && JSON.parse(store)) || [];
     }
+    const store = localStorage.getItem(namespace);
+    return (store && JSON.parse(store)) || [];
   }
 }
 
-export default Todoapp
+export default Todoapp;
